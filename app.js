@@ -3,7 +3,7 @@
 // Troque o valor abaixo pelo Client ID gerado no Google Cloud Console.
 // Veja o passo a passo que te enviei junto com este arquivo.
 // ================================================================
-const GOOGLE_CLIENT_ID = 'SEU_CLIENT_ID_AQUI.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '815099174674-lnj6qetv19833nh3fad9gtjhs1rt39bc.apps.googleusercontent.com';
 
 // Escopo do Drive (usado só no backup manual em XLSX, botão "Salvar no Drive")
 const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
@@ -12,14 +12,14 @@ const GOOGLE_SHEETS_SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
 
 // Cole aqui o ID da pasta compartilhada pelo gestor para o backup em XLSX.
 // Se deixar em branco, cada pessoa usa uma pasta pessoal "Backups Secretaria".
-const ID_PASTA_COMPARTILHADA_DRIVE = '';
+const ID_PASTA_COMPARTILHADA_DRIVE = '1w2k6iY6OFEBj29jenDXtmNgfwx2ZP77G';
 
 // ================================================================
 // LISTA COMPARTILHADA EM TEMPO (QUASE) REAL — Google Sheets
 // Cole aqui o ID da planilha compartilhada (está na URL: .../d/ID_AQUI/edit).
 // Deixe em branco para o app funcionar só localmente (modo antigo, offline).
 // ================================================================
-const ID_PLANILHA_COMPARTILHADA = '';
+const ID_PLANILHA_COMPARTILHADA = '1XzDtelmTMIJoEsFdyIFVzXDcu3KjAdgNpJR0nGvNXWs';
 const ABA_PLANILHA = 'Registros';
 const CABECALHO_PLANILHA = ['Data', 'Horario', 'Tipo', 'Aluno', 'Matricula', 'Turma', 'Local', 'Telefone', 'Motivo', 'Autorizado'];
 const INTERVALO_ATUALIZACAO_MS = 20000; // reconsulta a planilha a cada 20s
@@ -128,7 +128,9 @@ function alternarCamposPorTipo() {
     if (tipo !== 'OCORRENCIA') {
         document.getElementById('local_ocorrencia').value = 'Pátio';
         document.getElementById('detalhe_ocorrencia').value = '';
+        document.getElementById('funcionario_ocorrencia').value = '';
     }
+    document.getElementById('funcionario_ocorrencia').required = tipo === 'OCORRENCIA';
     verificarReincidencia();
 }
 
@@ -210,6 +212,7 @@ async function salvarOcorrencia() {
 
     let motivoFinal = '';
     let localOcorrencia = '-';
+    let responsavelRegistro = document.getElementById('autorizado_por').value.trim() || '-';
     if (tipoReg === 'ATRASO') {
         const status = document.getElementById('status_atraso').value;
         const detalhe = document.getElementById('justificativa_atraso').value.trim();
@@ -218,6 +221,12 @@ async function salvarOcorrencia() {
         localOcorrencia = document.getElementById('local_ocorrencia').value;
         const detalhe = document.getElementById('detalhe_ocorrencia').value.trim();
         motivoFinal = detalhe || 'Ocorrência registrada';
+        const funcionario = document.getElementById('funcionario_ocorrencia').value.trim();
+        if (!funcionario) {
+            alert('Informe quem fez o registro da ocorrência.');
+            return;
+        }
+        responsavelRegistro = funcionario;
     } else {
         motivoFinal = document.getElementById('motivo_obs').value.trim() || 'Saída antecipada';
     }
@@ -232,7 +241,7 @@ async function salvarOcorrencia() {
         telefone: telefoneLimpo,
         local: localOcorrencia,
         motivo: motivoFinal,
-        autorizado: document.getElementById('autorizado_por').value.trim() || '-'
+        autorizado: responsavelRegistro
     };
 
     if (!novoRegistro.telefone) {
@@ -289,7 +298,7 @@ function criarBotaoWhats(reg) {
     if (reg.tipo === "SAÍDA") {
         mensagem = `Olá! Informamos que o(a) aluno(a) *${reg.aluno}* (Turma: ${reg.turma}) teve uma *SAÍDA ANTECIPADA* às *${reg.horario}*.\nMotivo: ${reg.motivo}`;
     } else if (reg.tipo === "OCORRENCIA") {
-        mensagem = `Olá! Informamos que o(a) aluno(a) *${reg.aluno}* (Turma: ${reg.turma}) teve uma *OCORRÊNCIA* registrada às *${reg.horario}* (Local: ${reg.local}).\nDescrição: ${reg.motivo}`;
+        mensagem = `Olá! Informamos que o(a) aluno(a) *${reg.aluno}* (Turma: ${reg.turma}) teve uma *OCORRÊNCIA* registrada às *${reg.horario}* (Local: ${reg.local}).\nDescrição: ${reg.motivo}\nRegistrado por: ${reg.autorizado}`;
     }
 
     const link = `https://api.whatsapp.com/send?phone=55${reg.telefone}&text=${encodeURIComponent(mensagem)}`;
@@ -307,7 +316,7 @@ function linhaTabela(reg) {
     const btnWhats = criarBotaoWhats(reg);
     return `
         <tr>
-            <td><strong>${escaparHTML(reg.horario)}</strong><br><span class="badge ${classe}">${escaparHTML(reg.tipo)}</span></td>
+            <td><strong>${escaparHTML(reg.horario)}</strong><br><span class="badge ${classe}">${escaparHTML(reg.tipo)}</span><br><small style="color:#777;">${escaparHTML(reg.data || '-')}</small></td>
             <td>${escaparHTML(reg.aluno)}</td>
             <td>${escaparHTML(reg.turma)}</td>
             <td>${btnWhats}</td>
@@ -357,9 +366,9 @@ function exportarParaCSV() {
     const historico = obterHistorico();
     if (historico.length === 0) return alert("Sem dados para exportar.");
 
-    let csv = "\uFEFFDATA;HORARIO;TIPO;ALUNO;MATRICULA;TURMA;LOCAL;TELEFONE;MOTIVO\r\n";
+    let csv = "\uFEFFDATA;HORARIO;TIPO;ALUNO;MATRICULA;TURMA;LOCAL;TELEFONE;MOTIVO;AUTORIZADO/REGISTRADO POR\r\n";
     historico.forEach(reg => {
-        csv += `"${reg.data || '-'}";"${reg.horario}";"${reg.tipo}";"${reg.aluno}";"${reg.matricula}";"${reg.turma}";"${reg.local || '-'}";"${reg.telefone}";"${reg.motivo}"\r\n`;
+        csv += `"${reg.data || '-'}";"${reg.horario}";"${reg.tipo}";"${reg.aluno}";"${reg.matricula}";"${reg.turma}";"${reg.local || '-'}";"${reg.telefone}";"${reg.motivo}";"${reg.autorizado || '-'}"\r\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -381,7 +390,7 @@ function gerarPlanilhaXLSX() {
         Local: reg.local || '-',
         Telefone: reg.telefone,
         Motivo: reg.motivo,
-        'Autorizado por': reg.autorizado
+        'Autorizado/Registrado por': reg.autorizado
     }));
     const planilha = XLSX.utils.json_to_sheet(linhas);
     planilha['!cols'] = [{ wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 25 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 30 }, { wch: 16 }];

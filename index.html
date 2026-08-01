@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Entrada Secretaria</title>
+    <title>Controle de Alunos Entrada e Pátio</title>
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Controle Secretaria</h1>
+            <h1>Controle de Alunos Entrada e Pátio</h1>
             <p>Atrasos e Saídas Antecipadas</p>
         </header>
 
@@ -144,6 +144,10 @@
                         <label for="detalhe_ocorrencia">Descrição da Ocorrência (Opcional):</label>
                         <input type="text" id="detalhe_ocorrencia" placeholder="Ex: briga, indisciplina, uso de celular...">
                     </div>
+                    <div class="form-group">
+                        <label for="funcionario_ocorrencia">Quem Fez o Registro (Funcionário): <span style="color:red;">*</span></label>
+                        <input type="text" id="funcionario_ocorrencia" placeholder="Nome de quem flagrou/registrou a ocorrência">
+                    </div>
                 </div>
                 <button type="submit" class="btn-salvar">Salvar Registro</button>
             </form>
@@ -166,7 +170,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Hora/Tipo</th>
+                        <th>Data/Hora/Tipo</th>
                         <th>Aluno</th>
                         <th>Turma</th>
                         <th>Ação</th>

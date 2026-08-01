@@ -1,6 +1,6 @@
 {
-  "name": "Controle Secretaria - Atrasos e Saídas",
-  "short_name": "Secretaria",
+  "name": "Controle de Alunos Entrada e Pátio",
+  "short_name": "Entrada e Pátio",
   "description": "Controle de atrasos e saídas antecipadas de alunos, com alerta de reincidência e envio de aviso por WhatsApp.",
   "start_url": "./index.html",
   "scope": "./",
