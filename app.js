@@ -206,7 +206,7 @@ async function salvarOcorrencia() {
     const telefoneInput = document.getElementById('responsavel_telefone').value;
     const telefoneLimpo = telefoneInput ? telefoneInput.replace(/\D/g, '') : '';
 
-    const nomeAtual = document.getElementById('aluno_nome').value.trim();
+    const nomeAtual = document.getElementById('aluno_nome').value.trim().toUpperCase();
     const turmaAtual = document.getElementById('aluno_turma').value.trim().toUpperCase();
     const tipoReg = document.getElementById('tipo_registro').value;
 
